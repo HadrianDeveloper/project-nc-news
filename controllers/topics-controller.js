@@ -6,4 +6,5 @@ exports.getAllTopics = (req, res, next) => {
     .then((allTopics) => {
         res.status(200).send({allTopics: allTopics})
     })
-}
+    .catch(next)
+};
