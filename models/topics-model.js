@@ -5,8 +5,12 @@ exports.selectAllTopics = () => {
     .query('SELECT * FROM topics')
     .then(({rows}) => {
         if (!rows.length) {
-            return Promise.reject({ statusCode: 204, msg: 'Topics has not data'})
+            return Promise.reject({ 
+                statusCode: 204, msg: 'No data to retrieve. Topics table empty!'
+            })
+        } else {
+            return rows;
         }
-        return rows;
     })
-}
+};
+

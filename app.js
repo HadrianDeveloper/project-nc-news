@@ -7,7 +7,6 @@ app.use(express.json());
 
 app.get('/api/topics', getAllTopics)
 
-
 app.get('*', (req, res) => {
     res.status(404).send({msg: 'URL not found'})
 })
