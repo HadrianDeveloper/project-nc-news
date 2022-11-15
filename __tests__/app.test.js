@@ -1,11 +1,9 @@
 const request = require('supertest');
-
+const sort = require('jest-sorted')
 const db = require('../db/connection.js');
 const app = require('../app.js');
 const seed  = require('../db/seeds/seed.js');
 const testData = require('../db/data/test-data/index.js');
-const { expect } = require('@jest/globals');
-
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -37,6 +35,30 @@ describe('/api/topics', () => {
             });
         });
     });
-    
-    test.todo('Respond with 204 code and custom message when table is empty')
 });
+
+describe.only('/api/articles', () => {
+    test.only('Respond with 200 code and an array of article objects sorted in desc order of created_at date', () => {
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then(({body}) => {
+            expect(Array.isArray(body.allArticles)).toBe(true); 
+            expect(body.allArticles.length).toBe(12);
+            body.allArticles.forEach((article) => {
+                expect(article).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    comment_count: expect.any(String)
+                });
+            });
+            expect(body.allArticles).toBeSortedBy('created_at', { descending: true})
+        });
+    });
+});
+
+
