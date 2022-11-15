@@ -5,11 +5,10 @@ const app = require('../app.js');
 const seed  = require('../db/seeds/seed.js');
 const testData = require('../db/data/test-data/index.js');
 
-
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
-describe.only('Invalid URL handling', () => {
+describe('Invalid URL handling', () => {
     test('Respond with 404 code and custom message', () => {
         return request(app)
         .get('/unrealisticURL')
@@ -20,7 +19,7 @@ describe.only('Invalid URL handling', () => {
     })
 });
 
-describe.only('/api/topics', () => {
+describe('/api/topics', () => {
     test('Respond with 200 code and array of topic objects', () => {
         return request(app)
         .get('/api/topics')
@@ -38,8 +37,8 @@ describe.only('/api/topics', () => {
     });
 });
 
-describe('/api/articles', () => {
-    test('Respond with 200 code and an array of article objects', () => {
+describe.only('/api/articles', () => {
+    test.only('Respond with 200 code and an array of article objects sorted in desc order of created_at date', () => {
         return request(app)
         .get('/api/articles')
         .expect(200)
@@ -48,27 +47,18 @@ describe('/api/articles', () => {
             expect(body.allArticles.length).toBe(12);
             body.allArticles.forEach((article) => {
                 expect(article).toMatchObject({
-                    title: expect.any(String),
-                    topic: expect.any(String),
                     author: expect.any(String),
-                    body: expect.any(String),
+                    title: expect.any(String),
+                    article_id: expect.any(Number),
+                    topic: expect.any(String),
                     created_at: expect.any(String),
                     votes: expect.any(Number),
-                    comment_count: expect.any(Number)
-                })
-            })
-        })
-    });
-    test('Returned array is sorted in date order', () => {
-        return request(app)
-        .get('/api/articles')
-        .expect(200)
-        .then(({body}) => {
-            console.log(body.allArticles)
+                    comment_count: expect.any(String)
+                });
+            });
             expect(body.allArticles).toBeSortedBy('created_at', { descending: true})
-        })
-    })
-
-    test.todo('Respond with 204 code and custom message when table is empty')
+        });
+    });
 });
+
 
