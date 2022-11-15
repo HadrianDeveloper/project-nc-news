@@ -4,6 +4,7 @@ const db = require('../db/connection.js');
 const app = require('../app.js');
 const seed  = require('../db/seeds/seed.js');
 const testData = require('../db/data/test-data/index.js');
+const { test } = require('@jest/globals');
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -61,7 +62,6 @@ describe('/api/articles', () => {
     });
 });
 
-
 describe('/api/articles/:article_id', () => {
     test('Respond with 200 code and an article object', () => {
         return request(app)
@@ -98,3 +98,25 @@ describe('/api/articles/:article_id', () => {
         })
     });
 });
+
+// describe('/api/articles/:article_id/comments', () => {
+//     test('Respond with 200 code and an array ofcomments for article', () => {
+//         return request(app)
+//         .get('/api/articles/1/comments')
+//         .expect(200)
+//         .then(({body}) => {
+//             expect(Object.keys(body.article[0]).length).toBe(7);
+//             expect(body.article[0]).toMatchObject({
+//                     author: expect.any(String),
+//                     title: expect.any(String),
+//                     article_id: 1,
+//                     topic: expect.any(String),
+//                     created_at: expect.any(String),
+//                     votes: expect.any(Number),
+//             });
+//         });
+//     });
+//     test.todo('Respond with 404 code and error msg if id valid but does not yet exist')
+//     test.todo('Respond with 400 code and error msg if id invalid')
+//     test.todo('What should response be if no comments?')
+// });
