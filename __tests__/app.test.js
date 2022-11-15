@@ -37,7 +37,7 @@ describe('/api/topics', () => {
     });
 });
 
-describe.only('/api/articles', () => {
+describe('/api/articles', () => {
     test.only('Respond with 200 code and an array of article objects sorted in desc order of created_at date', () => {
         return request(app)
         .get('/api/articles')
@@ -62,3 +62,39 @@ describe.only('/api/articles', () => {
 });
 
 
+describe('/api/articles/:article_id', () => {
+    test('Respond with 200 code and an article object', () => {
+        return request(app)
+        .get('/api/articles/1')
+        .expect(200)
+        .then(({body}) => {
+            expect(Object.keys(body.article[0]).length).toBe(7);
+            expect(body.article[0]).toMatchObject({
+                    author: expect.any(String),
+                    title: expect.any(String),
+                    article_id: 1,
+                    topic: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+            });
+        });
+    });
+
+    test('Respond with 404 code and error msg if id valid but does not yet exist', () => {
+        return request(app)
+        .get('/api/articles/666')
+        .expect(404)
+        .then(({body}) => {
+              expect(body.msg).toBe('Article not found!')                     
+        });
+    });
+
+    test('Respond with 400 code and error msg if id invalid', () => {
+        return request(app)
+        .get('/api/articles/invalidArticleId')
+        .expect(400)
+        .then(({body}) => {
+            expect(body.msg).toBe('Bad request - invalid input!')
+        })
+    });
+});

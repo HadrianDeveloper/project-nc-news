@@ -15,5 +15,16 @@ exports.selectAllArticles = () => {
     })
 };
 
-
+exports.selectArticleById = (id) => {
+    return db
+    .query(`
+        SELECT * FROM articles
+        WHERE article_id = $1;
+    `, [id])
+    .then(({rows}) => {
+        return (!rows.length)
+            ? Promise.reject({ statusCode: 404, msg: 'Article not found!' })
+            : rows;
+    })
+};
 
