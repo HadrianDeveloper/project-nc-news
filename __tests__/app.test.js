@@ -1,16 +1,15 @@
 const request = require('supertest');
-
+const sort = require('jest-sorted')
 const db = require('../db/connection.js');
 const app = require('../app.js');
 const seed  = require('../db/seeds/seed.js');
 const testData = require('../db/data/test-data/index.js');
-const { expect } = require('@jest/globals');
 
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
-describe('Invalid URL handling', () => {
+describe.only('Invalid URL handling', () => {
     test('Respond with 404 code and custom message', () => {
         return request(app)
         .get('/unrealisticURL')
@@ -21,7 +20,7 @@ describe('Invalid URL handling', () => {
     })
 });
 
-describe('/api/topics', () => {
+describe.only('/api/topics', () => {
     test('Respond with 200 code and array of topic objects', () => {
         return request(app)
         .get('/api/topics')
@@ -37,6 +36,39 @@ describe('/api/topics', () => {
             });
         });
     });
-    
+});
+
+describe('/api/articles', () => {
+    test('Respond with 200 code and an array of article objects', () => {
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then(({body}) => {
+            expect(Array.isArray(body.allArticles)).toBe(true); 
+            expect(body.allArticles.length).toBe(12);
+            body.allArticles.forEach((article) => {
+                expect(article).toMatchObject({
+                    title: expect.any(String),
+                    topic: expect.any(String),
+                    author: expect.any(String),
+                    body: expect.any(String),
+                    created_at: expect.any(String),
+                    votes: expect.any(Number),
+                    comment_count: expect.any(Number)
+                })
+            })
+        })
+    });
+    test('Returned array is sorted in date order', () => {
+        return request(app)
+        .get('/api/articles')
+        .expect(200)
+        .then(({body}) => {
+            console.log(body.allArticles)
+            expect(body.allArticles).toBeSortedBy('created_at', { descending: true})
+        })
+    })
+
     test.todo('Respond with 204 code and custom message when table is empty')
 });
+
