@@ -39,4 +39,5 @@ exports.selectCommentsForArticle = (id) => {
     .then(({rows}) => {
         return rows;
     })
-}
+};
+
