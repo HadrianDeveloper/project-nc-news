@@ -1,4 +1,5 @@
-const { selectAllArticles, selectArticleById } = require("../models/articles-model.js");
+const { selectAllArticles, selectArticleById, selectCommentsForArticle } = require("../models/articles-model.js");
+const { checkArticleExists } = require("../utils/utils.js")
 
 exports.getAllArticles = (req, res, next) => {
     selectAllArticles()
@@ -21,4 +22,22 @@ exports.getArticleById = (req, res, next) => {
         res.status(200).send({article})
     })
     .catch(next)
+};
+
+exports.getCommentsForArticle = (req, res, next) => {
+    const id = req.params.article_id
+
+    checkArticleExists(id)
+    .then((exists) => {
+        if (exists) {
+            selectCommentsForArticle(id)
+            .then((results) => res.status(200).send(results))
+            .catch((err) => next(err))
+        } else {
+            return Promise.reject({statusCode: 404, msg: 'No article with that ID' })
+        }
+    })
+    .catch((err) => {
+        next(err)
+    })
 };
