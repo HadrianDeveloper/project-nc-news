@@ -100,7 +100,7 @@ describe('/api/articles/:article_id', () => {
 });
 
 describe('/api/articles/:article_id/comments', () => {
-    test('Respond with 200 code and an array of comments for article', () => {
+    test('Respond with 200 code and an array of comments for article sorted in date created order', () => {
         return request(app)
         .get('/api/articles/1/comments')
         .expect(200)
@@ -116,6 +116,7 @@ describe('/api/articles/:article_id/comments', () => {
                     body: expect.any(String)
                 })
             })
+            expect(body).toBeSortedBy('created_at', { descending: true});
         });
     });
 
