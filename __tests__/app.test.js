@@ -5,7 +5,6 @@ const app = require('../app.js');
 const seed  = require('../db/seeds/seed.js');
 const testData = require('../db/data/test-data/index.js');
 
-
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
 
@@ -149,7 +148,7 @@ describe('/api/articles/:article_id/comments', () => {
 });
 
 describe.only('POST /api/articles/:article_id/comments', () => {
-    test.only('Respond with 201 and newly created Comment object when user and article exists', () => {
+    test('Respond with 201 and newly created Comment object when user and article exists', () => {
         const input = {
             username: 'rogersop',
             body: 'Lupus non timet canem latrantem! Carpe diem!'
@@ -212,6 +211,29 @@ describe.only('POST /api/articles/:article_id/comments', () => {
         })
     });
 
+    test('Respond with 400 code and error msg if POST request has incorrect key', () => {
+        const misspeltKeyInput = {
+            abusername: 'rogersop',
+            body: 'Lupus non timet canem latrantem! Carpe diem!'
+        };
+        return request(app)
+        .post('/api/articles/1/comments')
+        .send(misspeltKeyInput)
+        .expect(400)
+        .then(({body}) => {
+            expect(body.msg).toBe('Bad request! Missing or incorrect key name(s)')
+        })
+    });
 
+    test('Respond with 400 code and error msg if POST request has missing key', () => {
+        const missingKeyInput = { body: 'Lupus non timet canem latrantem! Carpe diem!'};
+        return request(app)
+        .post('/api/articles/1/comments')
+        .send(missingKeyInput)
+        .expect(400)
+        .then(({body}) => {
+            expect(body.msg).toBe('Bad request! Missing or incorrect key name(s)')
+       })
+    });
 
 });
