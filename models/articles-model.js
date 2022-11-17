@@ -41,6 +41,7 @@ exports.selectCommentsForArticle = (id) => {
     })
 };
 
+
 exports.insertComment = (id, input) => {
     
     return db
@@ -56,3 +57,4 @@ exports.insertComment = (id, input) => {
     })
 
 }
+
