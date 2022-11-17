@@ -53,7 +53,7 @@ exports.postComment = (req, res, next) => {
     checkUserExists(body.username)
     .then((userExists) => {
         if (!userExists) {
-            next({statusCode: 401, msg: 'You need to have an account to post comments' });
+            next({statusCode: 401, msg: 'User not found' });
         };
         return checkArticleExists(id);
     })

@@ -201,7 +201,7 @@ describe.only('POST /api/articles/:article_id/comments', () => {
         .send(input)
         .expect(401)
         .then(({body}) => {
-            expect(body.msg).toBe('You need to have an account to post comments')
+            expect(body.msg).toBe('User not found')
         })
     });
 
