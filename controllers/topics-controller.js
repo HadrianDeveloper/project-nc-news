@@ -8,3 +8,4 @@ exports.getAllTopics = (req, res, next) => {
     })
     .catch(next)
 };
+

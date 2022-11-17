@@ -39,4 +39,20 @@ exports.selectCommentsForArticle = (id) => {
     .then(({rows}) => {
         return rows;
     })
+};
+
+exports.insertComment = (id, input) => {
+    
+    return db
+    .query(`
+        INSERT INTO comments
+            (author, article_id, body)
+        VALUES
+            ($1, $2, $3)
+        RETURNING *;    
+    `, [input.username, id, input.body])
+    .then((output) => {
+        return output;
+    })
+
 }
