@@ -158,11 +158,33 @@ describe.only('POST /api/articles/:article_id/comments', () => {
         .send(input)
         .expect(201)
         .then(({body}) => {
-            expect(body.postedArticle).toMatchObject({
+            expect(body.article).toMatchObject({
                 comment_id: expect.any(Number),
                 votes: 0,
                 created_at: expect.any(String),
                 article_id: 2,
+                author: 'rogersop',
+                body: 'Lupus non timet canem latrantem! Carpe diem!'
+            })
+        })
+    });
+
+    test('Respond with 201 and newly created Comment object when user and article exists, and while ignoring extra properties sent in the post request', () => {
+        const input = {
+            username: 'rogersop',
+            favourite_mammal: 'lynx',
+            body: 'Lupus non timet canem latrantem! Carpe diem!'
+        };
+        return request(app)
+        .post('/api/articles/3/comments')
+        .send(input)
+        .expect(201)
+        .then(({body}) => {
+            expect(body.article).toMatchObject({
+                comment_id: expect.any(Number),
+                votes: 0,
+                created_at: expect.any(String),
+                article_id: 3,
                 author: 'rogersop',
                 body: 'Lupus non timet canem latrantem! Carpe diem!'
             })
