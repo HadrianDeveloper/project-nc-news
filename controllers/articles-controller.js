@@ -1,5 +1,5 @@
-const { selectAllArticles, selectArticleById, selectCommentsForArticle } = require("../models/articles-model.js");
-const { checkArticleExists } = require("../utils/utils.js")
+const { selectAllArticles, selectArticleById, selectCommentsForArticle, insertComment } = require("../models/articles-model.js");
+const { checkArticleExists, checkUserExists, checkCommentStructure } = require("../utils/utils.js")
 
 exports.getAllArticles = (req, res, next) => {
     selectAllArticles()
@@ -39,5 +39,34 @@ exports.getCommentsForArticle = (req, res, next) => {
     })
     .catch((err) => {
         next(err)
+    })
+};
+
+exports.postComment = (req, res, next) => {
+    const id = req.params.article_id;
+    const body = req.body;
+
+    if (!checkCommentStructure(body)) next({ 
+        statusCode: 400, msg: 'Bad request! Missing or incorrect key name(s)' 
+    });    
+
+    checkUserExists(body.username)
+    .then((userExists) => {
+        if (!userExists) {
+            next({statusCode: 401, msg: 'User not found' });
+        };
+        return checkArticleExists(id);
+    })
+    .then((articleExists) => {
+        if (!articleExists) {
+            next({ statusCode: 404, msg: 'No article with that ID' });
+        };
+        return insertComment(id, body);    
+    })
+    .then(({rows}) => {
+        res.status(201).send({article: rows[0]});
+    })
+    .catch((err) => {
+        next(err);
     })
 };
