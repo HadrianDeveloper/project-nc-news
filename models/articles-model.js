@@ -43,7 +43,6 @@ exports.selectCommentsForArticle = (id) => {
 
 
 exports.insertComment = (id, input) => {
-    
     return db
     .query(`
         INSERT INTO comments
@@ -55,6 +54,19 @@ exports.insertComment = (id, input) => {
     .then((output) => {
         return output;
     })
+};
 
-}
+exports.updateArticle = (id, {inc_votes}) => {
 
+    return db
+    .query(`
+        UPDATE articles
+        SET votes = votes + $2
+        WHERE article_id = $1
+        RETURNING *;
+        `, [id, inc_votes])
+    .then(({rows}) => {
+        return rows[0]
+    })
+
+};

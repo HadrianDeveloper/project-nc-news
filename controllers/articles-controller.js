@@ -1,5 +1,5 @@
-const { selectAllArticles, selectArticleById, selectCommentsForArticle, insertComment } = require("../models/articles-model.js");
-const { checkArticleExists, checkUserExists, checkCommentStructure } = require("../utils/utils.js")
+const { selectAllArticles, selectArticleById, selectCommentsForArticle, insertComment, updateArticle } = require("../models/articles-model.js");
+const { checkArticleExists, checkUserExists, checkCommentStructure, checkPatchStructure, checkObjectStructure } = require("../utils/utils.js")
 
 exports.getAllArticles = (req, res, next) => {
     selectAllArticles()
@@ -46,8 +46,8 @@ exports.postComment = (req, res, next) => {
     const id = req.params.article_id;
     const body = req.body;
 
-    if (!checkCommentStructure(body)) next({ 
-        statusCode: 400, msg: 'Bad request! Missing or incorrect key name(s)' 
+    if (!checkObjectStructure('POST', body)) next({ 
+        statusCode: 400, msg: 'Bad request! Missing or incorrect properties' 
     });    
 
     checkUserExists(body.username)
@@ -69,4 +69,24 @@ exports.postComment = (req, res, next) => {
     .catch((err) => {
         next(err);
     })
+};
+
+exports.patchArticle = (req, res, next) => {
+
+    const id = req.params.article_id;
+    const votesObj = req.body;
+
+    if (!checkObjectStructure('PATCH', votesObj)) next({ 
+        statusCode: 400, msg: 'Bad request! Missing or incorrect properties' 
+    });    
+
+    checkArticleExists(id)
+    .then((articleExists) => {
+        if (!articleExists) next({ statusCode: 404, msg: 'No article with that ID' });
+        return updateArticle(id, votesObj)
+    })
+    .then((updatedObject) => {
+        res.status(200).send({article: updatedObject})
+    })
+    .catch((err) => next(err))
 };

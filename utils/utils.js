@@ -16,7 +16,12 @@ exports.checkUserExists = (username) => {
     })
 };
 
-exports.checkCommentStructure = (newComment) => {
-    const requiredKeys = ['body', 'username'];
-    return requiredKeys.every((key) => key in newComment)
+exports.checkObjectStructure = (method, obj) => {
+    if (method === 'POST') {
+        return ['body', 'username'].every((key) => key in obj)
+    };
+
+    if (method === 'PATCH') {
+        return ('inc_votes' in obj && typeof obj.inc_votes === 'number');
+    };
 };
