@@ -7,14 +7,15 @@ const { getAllArticles, getArticleById, getCommentsForArticle, postComment, patc
 const { getAllUsers } = require('./controllers/users-controller.js');
 const { handle404s, handlePSQLerrors, handleCustomErrors } = require('./errors/errors.js');
 
-app.get('/api/topics', getAllTopics);
 app.get('/api/articles', getAllArticles);
 app.get('/api/articles/:article_id', getArticleById);
 app.get('/api/articles/:article_id/comments', getCommentsForArticle)
-app.get('/api/users', getAllUsers)
-
 app.post('/api/articles/:article_id/comments', postComment)
 app.patch('/api/articles/:article_id', patchArticle)
+
+app.get('/api/users', getAllUsers)
+
+app.get('/api/topics', getAllTopics);
 
 app.get('*', handle404s)
 app.use(handlePSQLerrors)

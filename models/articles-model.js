@@ -1,19 +1,38 @@
 const db = require('../db/connection.js')
 
-exports.selectAllArticles = () => {
-    return db
-    .query(`
-        SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, COUNT(comments.article_id) AS comment_count
-            FROM articles
-        LEFT JOIN comments 
-            ON 7 = 3
-        GROUP BY 3
-        ORDER BY 5 DESC;
-        `)
-    .then(({rows}) => {
-        return rows;
+exports.selectAllArticles = (query) => {
+
+    let sqlQuery = `
+    SELECT articles.author, articles.title, articles.article_id, articles.topic, articles.created_at, articles.votes, 
+    COUNT(comments.article_id) AS comment_count
+        FROM articles
+    LEFT JOIN comments 
+        ON 7 = 3 `;
+
+    const topicFilter = query.topic;
+        if (topicFilter) sqlQuery += `WHERE topic = '${topicFilter}' `;
+
+    sqlQuery += `GROUP BY 3 ORDER BY `;
+
+    let sort = query.sort_by;
+    const permittedSorts = ['title', 'topic', 'created_at', 'article_id', 'author', 'votes', 'comment_count'];
+        if (!permittedSorts.includes(sort)) sort = 'created_at';
+        
+    sqlQuery += (sort === 'comment_count') ? 
+        `comment_count ` : `articles.${sort} `; 
+
+    let direction = query.order;
+        if (direction !== 'ASC') direction = 'DESC';
+        sqlQuery += direction;
+
+    return db.query(sqlQuery).then(({rows}) => {
+        return rows; 
     })
 };
+
+
+
+
 
 exports.selectArticleById = (id) => {
     return db
@@ -40,7 +59,6 @@ exports.selectCommentsForArticle = (id) => {
         return rows;
     })
 };
-
 
 exports.insertComment = (id, input) => {
     return db
