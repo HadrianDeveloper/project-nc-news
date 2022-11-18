@@ -373,7 +373,7 @@ describe('PATCH /api/articles/:article_id', () => {
 
 });
 
-describe.only('GET /api/users', () => {
+describe('GET /api/users', () => {
     test('Returns 200 status and array of all users', () => {
         return request(app)
         .get('/api/users')
