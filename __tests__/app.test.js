@@ -4,6 +4,7 @@ const db = require('../db/connection.js');
 const app = require('../app.js');
 const seed  = require('../db/seeds/seed.js');
 const testData = require('../db/data/test-data/index.js');
+const { expect } = require('@jest/globals');
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -371,3 +372,23 @@ describe('PATCH /api/articles/:article_id', () => {
     });
 
 });
+
+describe('GET /api/users', () => {
+    test('Returns 200 status and array of all users', () => {
+        return request(app)
+        .get('/api/users')
+        .expect(200)
+        .then(({body}) => {
+            expect(Array.isArray(body.allUsers)).toBe(true);
+            expect(body.allUsers.length).toBe(4);
+            body.allUsers.forEach((user) => {
+                expect(user).toMatchObject({
+                    username: expect.any(String),
+                    name: expect.any(String),
+                    avatar_url: expect.any(String)
+                })
+            });
+        })
+    });
+
+})

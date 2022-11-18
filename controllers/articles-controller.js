@@ -1,5 +1,5 @@
 const { selectAllArticles, selectArticleById, selectCommentsForArticle, insertComment, updateArticle } = require("../models/articles-model.js");
-const { checkArticleExists, checkUserExists, checkCommentStructure, checkPatchStructure, checkObjectStructure } = require("../utils/utils.js")
+const { checkArticleExists, checkUserExists, checkObjectStructure } = require("../utils/utils.js")
 
 exports.getAllArticles = (req, res, next) => {
     selectAllArticles()
