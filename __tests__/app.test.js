@@ -4,7 +4,7 @@ const db = require('../db/connection.js');
 const app = require('../app.js');
 const seed  = require('../db/seeds/seed.js');
 const testData = require('../db/data/test-data/index.js');
-const { expect } = require('@jest/globals');
+const { test, expect } = require('@jest/globals');
 
 beforeEach(() => seed(testData));
 afterAll(() => db.end());
@@ -60,7 +60,104 @@ describe('/api/articles', () => {
             expect(body.allArticles).toBeSortedBy('created_at', { descending: true})
         });
     });
+
+    test('TOPIC = filter: filtered array of topics retrieved', () => {
+        return request(app)
+        .get('/api/articles?topic=mitch')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.allArticles.length).toBe(11);
+            expect(body.allArticles.every((article) => article.topic === 'mitch')).toBe(true);
+        })
+    });
+
+    test('TOPIC = filter: empty array retrieved if topic has no associated articles', () => {
+        return request(app)
+        .get('/api/articles?topic=paper')
+        .expect(200)
+        .then(({body}) => {
+            expect(Array.isArray(body.allArticles)).toBe(true); 
+            expect(body.allArticles.length).toBe(0);        
+        })
+    });
+
+    test('TOPIC = filter: 404 if non-existent topic requested', () => {
+        return request(app)
+        .get('/api/articles?topic=pelican')
+        .expect(404)
+        .then(({body}) => {
+            expect(body.msg).toBe('Topic not found!')      
+        })
+    });
+
+    test('SORT - array sorted by (string) title', () => {
+        return request(app)
+        .get('/api/articles?sort_by=title')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.allArticles.length).toBe(12);
+            expect(body.allArticles).toBeSortedBy('title', { descending: true})
+        })
+    });
+
+    test('SORT - array sorted by (integer) article_id', () => {
+        return request(app)
+        .get('/api/articles?sort_by=article_id')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.allArticles.length).toBe(12);
+            expect(body.allArticles).toBeSortedBy('article_id', { descending: true})
+        })
+    });
+
+    test('SORT - array sorted by (integer) comment_count', () => {
+        return request(app)
+        .get('/api/articles?sort_by=comment_count')
+        .expect(200)
+        .then(({body}) => {
+            console.log(body.allArticles)
+            expect(body.allArticles.length).toBe(12);
+            expect(body.allArticles).toBeSortedBy('comment_count', { descending: true})
+        })
+    });
+
+    test('SORT - if sort_by column does not exist, defaults to standard [created_at]', () => {
+        return request(app)
+        .get('/api/articles?sort_by=pelican')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.allArticles).toBeSortedBy('created_at', { descending: true})
+        });
+    });
+
+    test('ORDER - retrieve default array in ascending order', () => {
+        return request(app)
+        .get('/api/articles?order=ASC')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.allArticles).toBeSortedBy('created_at', { descending: false})
+        });
+    });
+
+    test('ORDER - retrieve array sorted by (string) author in ascending order  ', () => {
+        return request(app)
+        .get('/api/articles?sort_by=author&order=ASC')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.allArticles).toBeSortedBy('author', { descending: false})
+        });
+    });
+
+    test('ORDER - retrieve array sorted by (integer) article_id in ascending order  ', () => {
+        return request(app)
+        .get('/api/articles?sort_by=article_id&order=ASC')
+        .expect(200)
+        .then(({body}) => {
+            expect(body.allArticles).toBeSortedBy('article_id', { descending: false})
+        });
+    });
 });
+
 
 describe('/api/articles/:article_id', () => {
     test('Respond with 200 code and an article object', () => {
@@ -373,7 +470,7 @@ describe('PATCH /api/articles/:article_id', () => {
 
 });
 
-describe.only('GET /api/users', () => {
+describe('GET /api/users', () => {
     test('Returns 200 status and array of all users', () => {
         return request(app)
         .get('/api/users')

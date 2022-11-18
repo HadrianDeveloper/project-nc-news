@@ -16,6 +16,14 @@ exports.checkUserExists = (username) => {
     })
 };
 
+exports.checkTopicExists = (topic) => {
+    return db
+    .query('SELECT * FROM topics WHERE slug = $1', [topic])
+    .then(({rowCount}) => {
+        return rowCount ? true : false;
+    })
+};
+
 exports.checkObjectStructure = (method, obj) => {
     if (method === 'POST') {
         return ['body', 'username'].every((key) => key in obj)
