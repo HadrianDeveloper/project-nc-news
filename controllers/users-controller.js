@@ -6,4 +6,5 @@ exports.getAllUsers = (req, res, next) => {
     .then((usersArray) => {
         res.status(200).send({ allUsers: usersArray })
     })
-}
+    .catch(err)
+};
