@@ -147,7 +147,7 @@ describe('/api/articles/:article_id/comments', () => {
     })
 });
 
-describe.only('POST /api/articles/:article_id/comments', () => {
+describe('POST /api/articles/:article_id/comments', () => {
     test('Respond with 201 and newly created Comment object when user and article exists', () => {
         const input = {
             username: 'rogersop',
@@ -243,7 +243,7 @@ describe.only('POST /api/articles/:article_id/comments', () => {
         .send(misspeltKeyInput)
         .expect(400)
         .then(({body}) => {
-            expect(body.msg).toBe('Bad request! Missing or incorrect key name(s)')
+            expect(body.msg).toBe('Bad request! Missing or incorrect properties')
         })
     });
 
@@ -254,8 +254,120 @@ describe.only('POST /api/articles/:article_id/comments', () => {
         .send(missingKeyInput)
         .expect(400)
         .then(({body}) => {
-            expect(body.msg).toBe('Bad request! Missing or incorrect key name(s)')
+            expect(body.msg).toBe('Bad request! Missing or incorrect properties')
        })
+    });
+
+});
+
+describe('PATCH /api/articles/:article_id', () => {
+    const voteIncreaser = { inc_votes: 10 };
+    const voteDecreaser = { inc_votes: -10 };
+    const voteWithBogusProps = { inc_votes: 10, hasPetPelican: true };
+    const misspeltVoteIncreaser = { pelicans : 10 }; 
+
+    test('Respond with 200 code and the updated article object - votes are increased', () => {
+        return request(app)
+        .patch('/api/articles/5')
+        .send(voteIncreaser)
+        .expect(200)
+        .then(({body}) => {
+            expect(body.article).toMatchObject({
+                article_id: 5,
+                title: expect.any(String),
+                votes: 10,
+                created_at: expect.any(String),
+                topic: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
+            })
+        })
+    });
+
+    test('Respond with 200 code and the updated article object - votes are decreased', () => {
+        return request(app)
+        .patch('/api/articles/5')
+        .send(voteDecreaser)
+        .expect(200)
+        .then(({body}) => {
+            expect(body.article).toMatchObject({
+                article_id: 5,
+                title: expect.any(String),
+                votes: -10,
+                created_at: expect.any(String),
+                topic: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
+            })
+        })
+    });
+
+    test('Respond with 200 code and the updated article object - extra fields ignored', () => {
+        return request(app)
+        .patch('/api/articles/5')
+        .send(voteWithBogusProps)
+        .expect(200)
+        .then(({body}) => {
+            expect(body.article).toMatchObject({
+                article_id: 5,
+                title: expect.any(String),
+                votes: 10,
+                created_at: expect.any(String),
+                topic: expect.any(String),
+                author: expect.any(String),
+                body: expect.any(String),
+            })
+        })
+    });
+
+    test('Respond with 404 code and custom msg if article ID valid but does not exist', () => {
+        return request(app)
+        .patch('/api/articles/5000')
+        .send(voteIncreaser)
+        .expect(404)
+        .then(({body}) => {
+            expect(body.msg).toBe('No article with that ID');
+        })
+    });
+
+    test('Respond with 400 code and custom msg if article ID is not valid', () => {
+        return request(app)
+        .patch('/api/articles/notAnId')
+        .send(voteIncreaser)
+        .expect(400)
+        .then(({body}) => {
+            expect(body.msg).toBe('Bad request!');
+        })
+    }); //HOW IS THIS WORKING?!?!?!?
+
+    test('Respond with 400 code and custom msg if input properties are invalid', () => {
+        return request(app)
+        .patch('/api/articles/5')
+        .send(misspeltVoteIncreaser)
+        .expect(400)
+        .then(({body}) => {
+            expect(body.msg).toBe('Bad request! Missing or incorrect properties');
+        })
+    });
+
+    test('Respond with 400 code and custom msg if input properties are missing', () => {
+        return request(app)
+        .patch('/api/articles/5')
+        .send({ clumsy_patch: 'daffodil'})
+        .expect(400)
+        .then(({body}) => {
+            expect(body.msg).toBe('Bad request! Missing or incorrect properties');
+        })
+    });
+
+    test('Respond with 400 code and custom msg if input value violates field data type', () => {
+        return request(app)
+        .patch('/api/articles/5')
+        .send({ inc_votes: 'five hundred' })
+        .expect(400)
+        .then(({body}) => {
+            expect(body.msg).toBe('Bad request! Missing or incorrect properties');
+        })
     });
 
 });
